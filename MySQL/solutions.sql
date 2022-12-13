@@ -1,4 +1,6 @@
+########################
 # Difficulty level: Easy
+########################
 
 # ID 10087: Find all posts which were reacted to with a heart
 
