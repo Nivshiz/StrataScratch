@@ -59,3 +59,66 @@ WHERE yearly_salary <= 30000 OR yearly_salary >= 70000
 SELECT company, continent, MAX(profits) AS profits
 FROM forbes_global_2010_2014
 WHERE sector = 'Financials'
+
+
+# ID 9972: Find the base pay for Police Captains
+
+SELECT employeename, basepay
+FROM sf_public_salaries 
+WHERE jobtitle = 'CAPTAIN III (POLICE DEPARTMENT)'
+
+
+# ID 10061: Popularity of Hack
+
+SELECT location, SUM(popularity)/COUNT(*) AS average_popularity
+FROM facebook_employees AS fe
+INNER JOIN facebook_hack_survey AS fhs
+    ON fe.id = fhs.employee_id
+GROUP BY location
+
+
+# ID 10299: Finding Updated Records
+
+SELECT id, first_name, last_name, department_id, MAX(salary) AS current_salary
+FROM ms_employee_salary
+GROUP BY id
+ORDER BY id ASC
+
+
+# ID 10308: Salaries Differences
+
+SELECT 
+ABS(
+    (SELECT MAX(salary)
+    FROM db_employee
+    WHERE department_id = (SELECT id FROM db_dept WHERE department = 'marketing'))
+-
+    (SELECT MAX(salary)
+    FROM db_employee
+    WHERE department_id = (SELECT id FROM db_dept WHERE department = 'engineering'))
+) AS diff_salaries
+
+
+# ID 9688: Churro Activity Date
+
+SELECT activity_date, pe_description
+FROM los_angeles_restaurant_health_inspections
+WHERE facility_name = 'STREET CHURROS' AND score < 95
+
+
+# ID 9891: Customer Details
+
+SELECT first_name, last_name, city, order_details
+FROM customers c
+LEFT JOIN orders o
+    ON c.id = o.cust_id
+ORDER BY first_name, order_details ASC
+
+
+# ID 9924: Find libraries who haven't provided the email address in circulation year 2016 but their notice preference definition is set to email
+
+SELECT DISTINCT home_library_code 
+FROM library_usage
+WHERE notice_preference_definition = 'email' 
+    AND circulation_active_year = 2016 
+    AND provided_email_address = 0
