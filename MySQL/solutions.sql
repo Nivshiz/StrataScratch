@@ -122,3 +122,33 @@ FROM library_usage
 WHERE notice_preference_definition = 'email' 
     AND circulation_active_year = 2016 
     AND provided_email_address = 0
+
+
+# ID 9992: Find how many times each artist appeared on the Spotify ranking list
+
+SELECT artist, COUNT(*) AS number_of_occurrences
+FROM spotify_worldwide_daily_song_ranking
+GROUP BY artist
+ORDER BY number_of_occurrences DESC
+
+
+# ID 10128: Count the number of movies that Abigail Breslin nominated for oscar
+
+SELECT COUNT(*) AS Count 
+FROM oscar_nominees 
+WHERE nominee = 'Abigail Breslin'
+
+
+# ID 9622: Number Of Bathrooms And Bedrooms
+
+SELECT city, property_type, AVG(bathrooms), AVG(bedrooms) from airbnb_search_details
+GROUP BY city, property_type
+
+
+
+##########################
+# Difficulty level: Medium
+##########################
+
+# ID 9728: Number of violations
+
