@@ -1,0 +1,2 @@
+# StrataScratch
+SQL/Python Practice
