@@ -196,5 +196,7 @@ FROM
     GROUP BY order_date, cust_id) AS a
 
 
-# 
+# ID 10352: Users By Average Session Time
+
+
 
