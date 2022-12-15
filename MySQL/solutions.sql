@@ -150,5 +150,51 @@ GROUP BY city, property_type
 # Difficulty level: Medium
 ##########################
 
-# ID 9728: Number of violations
+# ID 10156: Number Of Units Per Nationality
+
+SELECT nationality, COUNT(DISTINCT unit_id) AS num_of_apartments
+FROM airbnb_hosts ah
+INNER JOIN airbnb_units au
+    ON ah.host_id = au.host_id
+WHERE unit_type = 'Apartment' AND age < 30
+GROUP BY nationality
+ORDER BY COUNT(*) DESC
+
+
+# ID 9897: Highest Salary In Department
+
+WITH cte AS
+(
+    SELECT department, MAX(salary) AS max_salary
+    FROM employee
+    GROUP BY department
+)
+SELECT employee.department, first_name AS employee_name, salary
+FROM employee
+INNER JOIN cte
+    ON employee.department = cte.department AND employee.salary = cte.max_salary
+    
+
+# ID 10353: Workers With The Highest Salaries
+
+SELECT worker_title
+FROM worker
+INNER JOIN title
+    ON worker.worker_id = title.worker_ref_id
+WHERE salary = (select MAX(salary) from worker)
+
+
+# ID 9915: Highest Cost Orders
+
+SELECT first_name, MAX(total_daily_cost) AS total_daily_cost, order_date AS date
+FROM
+    (SELECT first_name, order_date, total_order_cost, SUM(total_order_cost) AS total_daily_cost
+    FROM orders
+    INNER JOIN customers
+        ON orders.cust_id = customers.id
+    WHERE order_date BETWEEN '2019-02-01' AND '2019-05-01'
+    GROUP BY order_date, cust_id) AS a
+
+
+# 
 
