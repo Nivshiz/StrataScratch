@@ -198,5 +198,35 @@ FROM
 
 # ID 10352: Users By Average Session Time
 
+WITH start_time AS
+(
+    SELECT 
+        user_id, 
+        DATE(timestamp) AS date, 
+        MAX(timestamp) AS last_page_load
+    FROM facebook_web_log
+    WHERE action = 'page_load'
+    GROUP BY 1, 2
+), 
+end_time AS
+(
+    SELECT 
+        user_id, 
+        DATE(timestamp) AS date, 
+        MIN(timestamp) AS first_page_exit
+    FROM facebook_web_log
+    WHERE action = 'page_exit'
+    GROUP BY 1, 2
+)
 
+SELECT
+    st.user_id,
+    st.date,
+    first_page_exit,
+    last_page_load,
+    AVG(TIMESTAMPDIFF(SECOND, last_page_load, first_page_exit)) AS avg_session_time
+FROM start_time st
+INNER JOIN end_time et
+    ON st.user_id = et.user_id AND st.date = et.date
+GROUP BY user_id
 
