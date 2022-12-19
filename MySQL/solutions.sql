@@ -230,3 +230,29 @@ INNER JOIN end_time et
     ON st.user_id = et.user_id AND st.date = et.date
 GROUP BY user_id
 
+
+# ID 10078: Find matching hosts and guests in a way that they are both of the same gender and nationality
+
+SELECT 
+    DISTINCT host_id,
+    guest_id
+FROM airbnb_hosts AS ah
+INNER JOIN airbnb_guests AS ag
+    ON ah.nationality = ag.nationality
+        AND ah.gender = ag.gender
+
+    
+# ID 9781: Find the rate of processed tickets for each type
+
+SELECT 
+    type,
+    (SUM(processed) / COUNT(processed)) AS processed_tickets_rate
+FROM facebook_complaints
+GROUP BY type
+    
+    
+# ID 10026: Find all wineries which produce wines by possessing aromas of plum, cherry, rose, or hazelnut
+
+SELECT DISTINCT winery
+FROM winemag_p1
+WHERE LOWER(description) REGEXP '(plum|cherry|rose|hazelnut)[^a-z]'
