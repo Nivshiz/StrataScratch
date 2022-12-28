@@ -256,3 +256,100 @@ GROUP BY type
 SELECT DISTINCT winery
 FROM winemag_p1
 WHERE LOWER(description) REGEXP '(plum|cherry|rose|hazelnut)[^a-z]'
+
+    
+# ID 10354: Most Profitable Companies
+
+SELECT company, profits
+FROM forbes_global_2010_2014
+ORDER BY profits DESC
+LIMIT 3
+    
+    
+# ID 9650: Find the top 10 ranked songs in 2010
+
+SELECT DISTINCT song_name, year_rank, group_name
+FROM billboard_top_100_year_end
+WHERE year = '2010'
+LIMIT 10
+    
+    
+# ID 9905: Highest Target Under Manager
+
+SELECT first_name, target
+FROM salesforce_employees
+WHERE manager_id = 13
+    AND target = 
+        (SELECT MAX(target) 
+        FROM salesforce_employees
+        WHERE manager_id = 13)
+    
+    
+# ID 9942: Largest Olympics
+
+SELECT games, COUNT(DISTINCT id) AS number_of_athletes 
+FROM olympics_athletes_events 
+GROUP BY games 
+ORDER BY 2 DESC 
+LIMIT 1
+   
+    
+# ID 9991: Top Ranked Songs
+
+SELECT trackname, COUNT(*) AS times_at_top
+FROM spotify_worldwide_daily_song_ranking
+WHERE position = 1
+GROUP BY trackname
+ORDER BY 2 DESC
+    
+    
+# ID 9726: Classify Business Type
+
+SELECT DISTINCT business_name, 
+    CASE
+        WHEN business_name LIKE '%School%' THEN 'school'
+        WHEN business_name LIKE '%cafe%'
+            OR business_name LIKE '%café%'
+            OR business_name LIKE '%coffee%' THEN 'cafe'
+        WHEN business_name LIKE '%restaurant%' THEN 'restaurant'
+        ELSE 'other'
+        END AS classification
+FROM sf_restaurant_health_violations
+    
+    
+# ID 10060: Top Cool Votes
+
+SELECT business_name, review_text
+FROM yelp_reviews
+WHERE cool = 
+    (select max(cool) from yelp_reviews)
+   
+    
+# ID 10048: Top Businesses With Most Reviews
+
+SELECT name AS business_name, review_count 
+FROM yelp_business 
+ORDER BY review_count DESC 
+LIMIT 5
+    
+    
+# ID 9782: Customer Revenue In March
+
+SELECT cust_id AS customer_id, SUM(total_order_cost) AS revenue
+FROM orders 
+WHERE month(order_date) = 3 
+    AND year(order_date) = 2019
+GROUP BY cust_id
+ORDER BY 2 DESC
+    
+    
+# ID 10322: Finding User Purchases
+
+SELECT user_id
+FROM
+    (SELECT *,
+        DATEDIFF(created_at, LAG(created_at, 1) OVER(PARTITION BY user_id ORDER BY created_at)) AS days_diff
+    FROM amazon_transactions) AS temp
+GROUP BY user_id
+HAVING MIN(days_diff) <= 7 
+    AND MIN(days_diff) IS NOT NULL
