@@ -115,7 +115,7 @@ LEFT JOIN orders o
 ORDER BY first_name, order_details ASC
 
 
-# ID 9924: Find libraries who haven't provided the email address in circulation year 2016 but their notice preference definition is set to email
+# ID 9924: Find libraries who havent provided the email address in circulation year 2016 but their notice preference definition is set to email
 
 SELECT DISTINCT home_library_code 
 FROM library_usage
@@ -353,3 +353,19 @@ FROM
 GROUP BY user_id
 HAVING MIN(days_diff) <= 7 
     AND MIN(days_diff) IS NOT NULL
+
+
+# ID 10077: Income By Title and Gender
+
+SELECT employee_title, sex AS gender, AVG(salary + total_bonus) AS avg_total_compensation
+FROM sf_employee
+INNER JOIN
+        (SELECT worker_ref_id, SUM(bonus) total_bonus
+        FROM sf_bonus
+        GROUP BY 1) AS bonus_table
+    ON sf_employee.id = bonus_table.worker_ref_id
+GROUP BY 1, 2
+
+
+# ID 10285: Acceptance Rate By Date
+
