@@ -2,6 +2,8 @@
 # Difficulty level: Easy
 ########################
 
+
+
 # ID 10087: Find all posts which were reacted to with a heart
 
 SELECT DISTINCT fp.* 
@@ -149,6 +151,8 @@ GROUP BY city, property_type
 ##########################
 # Difficulty level: Medium
 ##########################
+
+
 
 # ID 10156: Number Of Units Per Nationality
 
@@ -436,6 +440,13 @@ WITH cte AS (
 SELECT first_name, salary
 FROM cte
 WHERE salary > manager_salary
+
+
+
+########################
+# Difficulty level: *Hard*
+########################
+
 
 
 # ID 10319: Monthly Percentage Difference
