@@ -367,5 +367,81 @@ INNER JOIN
 GROUP BY 1, 2
 
 
-# ID 10285: Acceptance Rate By Date
+# ID 10049: Reviews of Categories
+
+WITH numbers AS (
+    SELECT 1 AS n
+    UNION ALL
+    SELECT 2 AS n
+    UNION ALL
+    SELECT 3 AS n
+    UNION ALL
+    SELECT 4 AS n
+    UNION ALL
+    SELECT 5 AS n
+    UNION ALL
+    SELECT 6 AS n
+    UNION ALL
+    SELECT 7 AS n
+    UNION ALL
+    SELECT 8 AS n
+    UNION ALL
+    SELECT 9 AS n
+    UNION ALL
+    SELECT 10 AS n
+    UNION ALL
+    SELECT 11 AS n
+    UNION ALL
+    SELECT 12 AS n
+)
+
+SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(t1.categories, ';', t2.n), ';', -1) AS category, SUM(t1.review_count) AS review_count
+FROM yelp_business t1
+JOIN
+numbers t2
+ON LENGTH(t1.categories) - LENGTH(REPLACE(t1.categories, ';', '')) >= t2.n-1
+GROUP BY 1
+ORDER BY 2 DESC
+
+
+# ID 9728: Number of violations
+
+SELECT YEAR(SUBSTRING_INDEX(inspection_date, "T", 1)) AS year,
+    COUNT(violation_id) AS count
+FROM sf_restaurant_health_violations
+WHERE business_name = 'Roxanne Cafe'
+GROUP BY 1
+ORDER BY 1 ASC
+
+
+# ID 10159: Ranking Most Active Guests
+
+SELECT DENSE_RANK() OVER(ORDER BY SUM(n_messages) DESC) AS rnk,
+    id_guest,
+    SUM(n_messages) AS total_messages
+FROM airbnb_contacts
+GROUP BY id_guest
+ORDER BY 3 DESC
+
+
+# ID 9894: Employee and Manager Salaries
+
+WITH cte AS (
+    SELECT e1.*, e2.salary AS manager_salary
+    FROM employee e1
+    INNER JOIN employee e2
+        ON e1.manager_id = e2.id
+)
+
+SELECT first_name, salary
+FROM cte
+WHERE salary > manager_salary
+
+
+# ID 10319: Monthly Percentage Difference
+
+
+
+
+
 
