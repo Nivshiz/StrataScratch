@@ -444,13 +444,87 @@ WHERE salary > manager_salary
 
 
 ########################
-# Difficulty level: *Hard*
+# Difficulty level: Hard
 ########################
 
 
 
 # ID 10319: Monthly Percentage Difference
 
+WITH cte AS (
+    SELECT 
+        DATE_FORMAT(created_at, '%Y-%m') AS month,
+        SUM(value) AS revenue
+    FROM sf_transactions
+    GROUP BY month
+    ORDER BY month
+)
+
+SELECT month,
+    ROUND((revenue - LAG(revenue, 1) OVER(ORDER BY month))/LAG(revenue, 1) OVER(ORDER BY month)*100, 2) AS prc_chng
+FROM cte
+
+
+# ID 10284: Popularity Percentage
+
+WITH cte AS (
+    SELECT user1 AS user_id, COUNT(*) AS cnt
+    FROM facebook_friends
+    GROUP BY 1
+    
+    UNION
+    
+    SELECT user2 AS user_id, COUNT(*) AS cnt
+    FROM facebook_friends
+    GROUP BY 1
+)
+
+SELECT user_id, 
+    (SUM(cnt) / (SELECT COUNT(DISTINCT user_id) FROM cte))*100 AS popularity_percentage
+FROM cte
+GROUP BY 1
+ORDER BY 1 ASC
+
+
+# ID 9814: Counting Instances in Text
+
+SELECT
+    'bull' as word,
+    SUM(IF(contents REGEXP '\\bbull\\b',1,0)) as occurrences
+FROM google_file_store
+
+UNION
+
+SELECT
+    'bear' as word,
+    SUM(IF(contents REGEXP '\\bbear\\b',1,0)) as occurrences
+FROM google_file_store
+
+
+# ID 10046: Top 5 States With 5 Star Businesses
+
+WITH cte1 AS (
+    SELECT DENSE_RANK() OVER(ORDER BY COUNT(*)) AS rnk
+    FROM yelp_business
+    WHERE stars = 5
+    GROUP BY state
+    ORDER BY rnk DESC
+    LIMIT 5
+),
+cte2 AS (
+    SELECT state,
+        COUNT(*) AS count,
+        DENSE_RANK() OVER(ORDER BY COUNT(*)) AS rnk
+    FROM yelp_business
+    WHERE stars = 5
+    GROUP BY state
+    ORDER BY rnk DESC
+)
+
+SELECT state, count
+FROM cte2
+WHERE rnk IN (SELECT * FROM cte1)
+ORDER BY 2 DESC, 1
 
 
 
