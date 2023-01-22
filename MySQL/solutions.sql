@@ -527,6 +527,89 @@ WHERE rnk IN (SELECT * FROM cte1)
 ORDER BY 2 DESC, 1
 
 
+# ID 9632: Host Popularity Rental Prices
+
+WITH cte1 AS (
+    SELECT 
+        CONCAT(price, room_type, host_since, zipcode, number_of_reviews) AS host_id,
+        SUM(number_of_reviews) AS total_n_reviews,
+        price
+    FROM airbnb_host_searches
+    GROUP BY 1
+), cte2 AS (
+SELECT  
+    host_id,
+    CASE
+        WHEN total_n_reviews=0 THEN "New"
+        WHEN total_n_reviews>=1 AND total_n_reviews<=5 THEN "Rising"
+        WHEN total_n_reviews>=6 AND total_n_reviews<=15 THEN "Trending Up"
+        WHEN total_n_reviews>=16 AND total_n_reviews<=40 THEN "Popular"
+        ELSE "Hot"
+        END AS popularity_rating,
+        price
+FROM cte1
+)
+
+SELECT popularity_rating,
+    MIN(price) AS min_price,
+    AVG(price) AS average_price,
+    MAX(price) AS max_price
+FROM cte2
+GROUP BY popularity_rating
 
 
+# ID 10300: Premium vs Freemium
 
+WITH cte AS (
+    SELECT 
+        downloads.*, 
+        users.acc_id, 
+        accounts.paying_customer,
+        CASE WHEN paying_customer = "yes" THEN downloads ELSE 0 END AS paying_cust,
+        CASE WHEN paying_customer = "no" THEN downloads ELSE 0 END AS not_paying_cust
+    FROM ms_download_facts AS downloads
+    INNER JOIN ms_user_dimension AS users
+        ON downloads.user_id = users.user_id
+    INNER JOIN ms_acc_dimension AS accounts
+        ON users.acc_id = accounts.acc_id
+)
+
+SELECT
+    date,
+    SUM(paying_cust) AS total_paying,
+    SUM(not_paying_cust) AS total_nonpaying
+FROM cte
+GROUP BY date
+HAVING total_nonpaying > total_paying
+ORDER BY date
+
+
+# ID 514: Marketing Campaign Success [Advanced]
+
+WITH user_first_day AS (
+    SELECT 
+        user_id, 
+        MIN(created_at) AS first_day,
+        GROUP_CONCAT(DISTINCT product_id) AS products_first_day
+    FROM marketing_campaign
+    GROUP BY user_id
+    
+), user_first_day_and_products AS (
+    SELECT 
+        marketing_campaign.user_id,
+        first_day,
+        GROUP_CONCAT(DISTINCT product_id) AS products_first_day
+    FROM marketing_campaign
+    INNER JOIN user_first_day
+        ON marketing_campaign.user_id = user_first_day.user_id
+    WHERE created_at = first_day
+    GROUP BY user_id
+)
+
+SELECT 
+    COUNT(DISTINCT marketing_campaign.user_id) AS count
+FROM marketing_campaign
+INNER JOIN user_first_day_and_products
+    ON marketing_campaign.user_id = user_first_day_and_products.user_id
+WHERE created_at != first_day
+    AND FIND_IN_SET(product_id, products_first_day) = 0
